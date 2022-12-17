@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sockets/models/Bici.dart';
+import 'package:flutter_sockets/models/bici.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -27,7 +32,7 @@ class _HomePageState extends State<HomePage> {
           itemCount: bicis.length,
           itemBuilder: (context, i) => _biciTile(bicis[i])),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => addNewBici,
+        onPressed: addNewBici,
         child: Icon(Icons.add),
         elevation: 1,
       ),
@@ -52,20 +57,59 @@ class _HomePageState extends State<HomePage> {
   }
 
   addNewBici() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Nueva bici nombre: '),
-            content: TextField(),
+    final textController = TextEditingController();
+
+    if (!Platform.isAndroid) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Nueva bici nombre: '),
+              content: TextField(
+                controller: textController,
+              ),
+              actions: [
+                MaterialButton(
+                  onPressed: () => addBiciToList(textController.text),
+                  child: Text('Añadir'),
+                  elevation: 5,
+                  textColor: Colors.blue,
+                )
+              ],
+            );
+          });
+    }
+    showCupertinoDialog(
+        builder: (_) {
+          return CupertinoAlertDialog(
+            title: const Text('Nuevo nombre bici'),
+            content: CupertinoTextField(
+              controller: textController,
+            ),
             actions: [
-              MaterialButton(
-                onPressed: () {},
+              CupertinoDialogAction(
                 child: Text('Añadir'),
-                elevation: 5,
+                isDefaultAction: true,
+                onPressed: () => addBiciToList(textController.text),
+              ),
+              CupertinoDialogAction(
+                child: Text('Borrar'),
+                isDestructiveAction: true,
+                onPressed: () => Navigator.pop(context),
               )
             ],
           );
-        });
+        },
+        context: context);
+  }
+
+  void addBiciToList(String nombre) {
+    ;
+    if (nombre.length > 1) {
+      //podemos agregar
+      this.bicis.add(
+          new Bici(id: DateTime.now().toString(), nombre: nombre, votos: 0));
+    }
+    Navigator.pop(context);
   }
 }
