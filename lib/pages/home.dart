@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,20 +40,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  ListTile _biciTile(Bici bici) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.blue[100],
-        child: Text(bici.nombre.substring(0, 2)),
+  Widget _biciTile(Bici bici) {
+    return Dismissible(
+      key: Key(bici.id),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction) {
+        //todo borrar en back
+      },
+      background: Container(
+        padding: const EdgeInsets.only(left: 0.8),
+        color: Colors.red,
+        child: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Borrar bici',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       ),
-      title: Text(bici.nombre),
-      trailing: Text(
-        '${bici.votos}',
-        style: const TextStyle(fontSize: 20),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue[100],
+          child: Text(bici.nombre.substring(0, 2)),
+        ),
+        title: Text(bici.nombre),
+        trailing: Text(
+          '${bici.votos}',
+          style: const TextStyle(fontSize: 20),
+        ),
+        onTap: (() {
+          print(bici.nombre);
+        }),
       ),
-      onTap: (() {
-        print(bici.nombre);
-      }),
     );
   }
 
