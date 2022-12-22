@@ -16,6 +16,12 @@ class StatusPage extends StatelessWidget {
           children: [Text('ServerStatus: ${socketService.serverStatus}')],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.message),
+          onPressed: () {
+            socketService.socket.emit('emitir-mensaje',
+                {'nombre': 'Antonio', 'Mensaje': 'Hola desde Fluter'});
+          }),
     );
   }
 }
