@@ -28,18 +28,19 @@ class _HomePageState extends State<HomePage> {
     socketService.socket.on('active-bicis', (payload) {
       bicis = (payload as List).map((bici) => Bici.fromMap(bici)).toList();
     });
+    setState(() {});
     super.initState();
   }
 
-/**
- * Sirve para dejar de escuchar el evento
- */
+/*
+ Sirve para dejar de escuchar el evento
+
   @override
   void dispose() {
     final socketService = Provider.of<SocketService>(context, listen: false);
     socketService.socket.off('active-bicis');
     super.dispose();
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _biciTile(Bici bici) {
+    final socketService = Provider.of<SocketService>(context, listen: false);
     return Dismissible(
       key: Key(bici.id),
       direction: DismissDirection.startToEnd,
@@ -102,7 +104,8 @@ class _HomePageState extends State<HomePage> {
           style: const TextStyle(fontSize: 20),
         ),
         onTap: (() {
-          print(bici.nombre);
+          socketService.socket.emit('votar-bici', {'id': bici.id});
+          setState(() {});
         }),
       ),
     );
