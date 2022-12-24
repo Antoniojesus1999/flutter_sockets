@@ -22,6 +22,24 @@ class _HomePageState extends State<HomePage> {
     Bici(id: '3', nombre: 'Mendiz', votos: 2),
     Bici(id: '4', nombre: 'Cannyon', votos: 10)
   ];
+  @override
+  void initState() {
+    final socketService = Provider.of<SocketService>(context, listen: false);
+    socketService.socket.on('active-bicis', (payload) {
+      bicis = (payload as List).map((bici) => Bici.fromMap(bici)).toList();
+    });
+    super.initState();
+  }
+
+/**
+ * Sirve para dejar de escuchar el evento
+ */
+  @override
+  void dispose() {
+    final socketService = Provider.of<SocketService>(context, listen: false);
+    socketService.socket.off('active-bicis');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +67,8 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (context, i) => _biciTile(bicis[i])),
       floatingActionButton: FloatingActionButton(
         onPressed: addNewBici,
-        child: Icon(Icons.add),
         elevation: 1,
+        child: const Icon(Icons.add),
       ),
     );
   }
