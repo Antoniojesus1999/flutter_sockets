@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sockets/models/bici.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 
 import '../services/socket_service.dart';
@@ -61,9 +62,16 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-          itemCount: bicis.length,
-          itemBuilder: (context, i) => _biciTile(bicis[i])),
+      body: Column(
+        children: [
+          _showGraph(),
+          Expanded(
+            child: ListView.builder(
+                itemCount: bicis.length,
+                itemBuilder: (context, i) => _biciTile(bicis[i])),
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: addNewBici,
         elevation: 1,
@@ -155,4 +163,54 @@ class _HomePageState extends State<HomePage> {
     }
     Navigator.pop(context);
   }
+}
+
+Widget _showGraph() {
+  Map<String, double> dataMap = {
+    "Flutter": 5,
+    "React": 3,
+    "Xamarin": 2,
+    "Ionic": 2,
+  };
+  final List<Color> colorList = [
+    Colors.blue[50]!,
+    Colors.blue[200]!,
+    Colors.pink[50]!,
+    Colors.pink[200]!,
+    Colors.yellow[50]!,
+    Colors.yellow[200]!
+  ];
+  return Container(
+    width: double.infinity,
+    height: 300,
+    child: PieChart(
+      dataMap: dataMap,
+      animationDuration: Duration(milliseconds: 800),
+      chartLegendSpacing: 32,
+      chartRadius: MediaQuery.of(context).size.width / 3.2,
+      colorList: colorList,
+      initialAngleInDegree: 0,
+      chartType: ChartType.ring,
+      ringStrokeWidth: 32,
+      centerText: "HYBRID",
+      legendOptions: LegendOptions(
+        showLegendsInRow: false,
+        legendPosition: LegendPosition.right,
+        showLegends: true,
+        legendShape: _BoxShape.circle,
+        legendTextStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      chartValuesOptions: ChartValuesOptions(
+        showChartValueBackground: true,
+        showChartValues: true,
+        showChartValuesInPercentage: false,
+        showChartValuesOutside: false,
+        decimalPlaces: 1,
+      ),
+      // gradientList: ---To add gradient colors---
+      // emptyColorGradient: ---Empty Color gradient---
+    ),
+  );
 }
