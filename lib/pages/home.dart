@@ -16,12 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Bici> bicis = [
-    Bici(id: '1', nombre: 'Trek', votos: 2),
-    Bici(id: '2', nombre: 'Trifox', votos: 5),
-    Bici(id: '3', nombre: 'Mendiz', votos: 2),
-    Bici(id: '4', nombre: 'Cannyon', votos: 10)
-  ];
+  List<Bici> bicis = [];
   @override
   void initState() {
     final socketService = Provider.of<SocketService>(context, listen: false);
@@ -143,14 +138,14 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: [
               CupertinoDialogAction(
-                child: Text('Añadir'),
                 isDefaultAction: true,
                 onPressed: () => addBiciToList(textController.text),
+                child: const Text('Añadir'),
               ),
               CupertinoDialogAction(
-                child: Text('Borrar'),
                 isDestructiveAction: true,
                 onPressed: () => Navigator.pop(context),
+                child: const Text('Volver'),
               )
             ],
           );
@@ -159,11 +154,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void addBiciToList(String nombre) {
-    ;
+    final socketService = Provider.of<SocketService>(context, listen: false);
     if (nombre.length > 1) {
-      //podemos agregar
-      this.bicis.add(
-          new Bici(id: DateTime.now().toString(), nombre: nombre, votos: 0));
+      socketService.socket.emit('crear-bici', {'nombre': nombre});
     }
     Navigator.pop(context);
   }
