@@ -20,11 +20,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     final socketService = Provider.of<SocketService>(context, listen: false);
-    socketService.socket.on('active-bicis', (payload) {
-      bicis = (payload as List).map((bici) => Bici.fromMap(bici)).toList();
-    });
-    setState(() {});
+    socketService.socket.on('active-bicis', _handleActiveBici);
     super.initState();
+  }
+
+  void _handleActiveBici(dynamic payload) {
+    bicis = (payload as List).map((bici) => Bici.fromMap(bici)).toList();
+
+    setState(() {});
   }
 
 /*
@@ -74,9 +77,8 @@ class _HomePageState extends State<HomePage> {
     return Dismissible(
       key: Key(bici.id),
       direction: DismissDirection.startToEnd,
-      onDismissed: (direction) {
-        //todo borrar en back
-      },
+      onDismissed: (_) =>
+          socketService.socket.emit('borrar-bici', {'id': bici.id}),
       background: Container(
         padding: const EdgeInsets.only(left: 0.8),
         color: Colors.red,
@@ -98,10 +100,7 @@ class _HomePageState extends State<HomePage> {
           '${bici.votos}',
           style: const TextStyle(fontSize: 20),
         ),
-        onTap: (() {
-          socketService.socket.emit('votar-bici', {'id': bici.id});
-          setState(() {});
-        }),
+        onTap: () => socketService.socket.emit('votar-bici', {'id': bici.id}),
       ),
     );
   }
@@ -112,44 +111,40 @@ class _HomePageState extends State<HomePage> {
     if (!Platform.isAndroid) {
       return showDialog(
           context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('Nueva bici nombre: '),
-              content: TextField(
+          builder: (context) => AlertDialog(
+                title: const Text('Nueva bici nombre: '),
+                content: TextField(
+                  controller: textController,
+                ),
+                actions: [
+                  MaterialButton(
+                    onPressed: () => addBiciToList(textController.text),
+                    child: Text('Añadir'),
+                    elevation: 5,
+                    textColor: Colors.blue,
+                  )
+                ],
+              ));
+    }
+    showCupertinoDialog(
+        builder: (_) => CupertinoAlertDialog(
+              title: const Text('Nuevo nombre bici'),
+              content: CupertinoTextField(
                 controller: textController,
               ),
               actions: [
-                MaterialButton(
+                CupertinoDialogAction(
+                  isDefaultAction: true,
                   onPressed: () => addBiciToList(textController.text),
-                  child: Text('Añadir'),
-                  elevation: 5,
-                  textColor: Colors.blue,
+                  child: const Text('Añadir'),
+                ),
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Volver'),
                 )
               ],
-            );
-          });
-    }
-    showCupertinoDialog(
-        builder: (_) {
-          return CupertinoAlertDialog(
-            title: const Text('Nuevo nombre bici'),
-            content: CupertinoTextField(
-              controller: textController,
             ),
-            actions: [
-              CupertinoDialogAction(
-                isDefaultAction: true,
-                onPressed: () => addBiciToList(textController.text),
-                child: const Text('Añadir'),
-              ),
-              CupertinoDialogAction(
-                isDestructiveAction: true,
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Volver'),
-              )
-            ],
-          );
-        },
         context: context);
   }
 
